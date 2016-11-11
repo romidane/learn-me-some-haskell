@@ -127,12 +127,12 @@ baseRect width height = Rectangle (Point 0 0) (Point width height)
 -- Certainly there must be a better way! this was not fun at all!
 
 data Person = Person {
-  firstName :: String,
-  lastName :: String,
-  age :: Int,
-  height :: Float,
+  firstName   :: String,
+  lastName    :: String,
+  age         :: Int,
+  height      :: Float,
   phoneNumber :: String,
-  flavor :: String
+  flavor      :: String
 } deriving (Show)
 
 -- By using record syntax to create this data type, Haskell automatically makes
@@ -143,9 +143,9 @@ data Person = Person {
 -- fm = Car "Ford" "Mustang" 1978
 
 data Car = Car {
-  make :: String,
+  make  :: String,
   model :: String,
-  year :: Int
+  year  :: Int
 } deriving (Show)
 
 fm = Car { make = "Ford", model = "Mustang", year = 1978 }
@@ -174,8 +174,8 @@ data ShapeMaybe = ShNothing | ShJust Shape
 -- Should We Parameterize Our Car?
 data Car' a b c = Car' {
   company' :: a,
-  model' :: b,
-  year' :: c
+  model'   :: b,
+  year'    :: c
 } deriving (Show)
 
 tellCar :: (Show a) => Car' String String a -> String
@@ -210,8 +210,8 @@ vmult :: (Num a) => Vector a -> a -> Vector a
 
 data Person' = Person' {
   firstName' :: String,
-  lastName' :: String,
-  age' :: Int
+  lastName'  :: String,
+  age'       :: Int
 } deriving (Eq, Show, Read)
 
 mikeD = Person' {firstName' = "Michael", lastName' = "Diamond", age' = 43}
@@ -488,7 +488,7 @@ Empty ^++ ys = ys
 
 
 -- ============================
--- Making you own type classes
+-- Making your own type classes
 -- ============================
 
 -- Inside the Eq type class

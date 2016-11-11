@@ -1,4 +1,4 @@
-import Data.List
+import           Data.List
 
 --------           ------------
 --        Problem 1
@@ -66,7 +66,7 @@ elementAt xs index
   | otherwise = xs !! (index - 1)
 
 elementAt2 :: [a] -> Int -> a
-elementAt2 xs index = last $ foldl (\acc x -> if length acc == (index) then acc else acc ++ [x]) [] xs
+elementAt2 xs index = last $ foldl (\acc x -> if length acc == index then acc else acc ++ [x]) [] xs
 
 elementAt3 :: [a] -> Int -> a
 elementAt3 xs index = last $ take index xs

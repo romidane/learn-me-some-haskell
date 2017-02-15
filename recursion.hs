@@ -172,8 +172,8 @@ isPrime num = primeTest num 2
 primesLessThan :: Int -> [Int]
 primesLessThan 1 = []
 primesLessThan n
-  | isPrime nextVal = nextVal:primesLessThan(nextVal)
-  | otherwise = primesLessThan(nextVal)
+  | isPrime nextVal = nextVal : primesLessThan nextVal
+  | otherwise = primesLessThan nextVal
     where nextVal = n - 1
 
 -- using generators

@@ -40,3 +40,16 @@
 -- The number on the stack is now -4. Because there are no more numbers
 -- or operators in our expression, that’s our result!
 
+
+-- The folding function will take a stack and an item and return a new stack.
+-- We’ll use pattern matching to get the top items of a stack and to pattern match against operators like "*" and "-".
+-- Here it is with the folding function implemented:
+
+solveRPN :: String -> Double
+solveRPN = head . foldl foldingFunction [] . words
+  where foldingFunction (x:y:ys) "*" = (y*x):ys
+        foldingFunction (x:y:ys) "+" = (y+x):ys
+        foldingFunction (x:y:ys) "-" = (y-x):ys
+        foldingFunction (x:y:ys) "/" = (y/x):ys
+        foldingFunction xs numberString = read numberString:xs
+

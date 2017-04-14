@@ -439,7 +439,103 @@
 -- import qualified Data.Foldable as F
 
 -- Let’s compare the types of Foldable’s foldr and foldr from Prelude to see how they differ:
+
 -- ghci> :t foldr
 -- foldr :: (a -> b -> b) -> b -> [a] -> b
 -- ghci> :t F.foldr
 -- F.foldr :: (F.Foldable t) => (a -> b -> b) -> b -> t a -> b
+
+-- So whereas foldr takes a list and folds it up, the foldr from Data.Foldable accepts
+-- any type that can be folded up, not just lists! As expected, both foldr functions do the same for lists:
+
+-- So whereas foldr takes a list and folds it up,
+-- the foldr from Data.Foldable accepts any type that can be folded up, not just lists!
+-- As expected, both foldr functions do the same for lists:
+
+-- Another data structures that support folds is the Maybe we all know and love!
+
+-- ghci> F.foldl (+) 2 (Just 9)
+-- 11
+-- ghci> F.foldr (||) False (Just True)
+-- True
+
+-- But folding over a Maybe value isn’t terribly interesting.
+-- It just acts like a list with one element if it’s a Just value and like an empty list if it’s Nothing.
+
+-- data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Show)
+
+-- A tree is either an empty tree that doesn’t hold any values or it’s a node that holds one value and also two other trees.
+
+
+-- One way to make a type constructor an instance of Foldable is to just directly implement foldr for it.
+-- But another, often much easier way, is to implement the foldMap function, which is also a part of the Foldable type class.
+-- The foldMap function has the following type:
+
+-- foldMap :: (Monoid m, Foldable t) => (a -> m) -> t a -> m
+
+-- Its first parameter is a function that takes a value of the type that our
+-- foldable structure contains (denoted here with a) and returns a monoid value.
+-- Its second parameter is a foldable structure that contains values of type a.
+-- It maps that function over the foldable structure, thus producing a foldable structure that contains monoid values.
+-- Then, by doing mappend between those monoid values, it joins them all into a single monoid value.
+
+
+-- This is how we make Tree an instance of Foldable:
+
+-- instance F.Foldable Tree where
+--     foldMap f EmptyTree = mempty
+--     foldMap f (Node x l r) = F.foldMap f l `mappend`
+--                              f x           `mappend`
+--                              F.foldMap f r
+
+
+-- Now lets see how we can work with a foldable struction such as a tree
+
+-- testTree = Node 5
+--             (Node 3
+--                 (Node 1 EmptyTree EmptyTree)
+--                 (Node 6 EmptyTree EmptyTree)
+--             )
+--             (Node 9
+--                 (Node 8 EmptyTree EmptyTree)
+--                 (Node 10 EmptyTree EmptyTree)
+--             )
+
+-- It has 5 at its root, and then its left node has 3 with 1 on the left and 6 on the right.
+-- The root’s right node has a 9 and then 8 to its left and 10 on the far right side.
+-- With a Foldable instance, we can do all of the folds that we can do on lists:
+
+-- ghci> F.foldl (+) 0 testTree
+-- 42
+-- ghci> F.foldl (*) 1 testTree
+-- 64800
+
+
+-- foldMap isn’t useful only for making new instances of Foldable.
+-- It also comes in handy for reducing our structure to a single monoid value.
+-- For instance, if we want to know if any number in our tree is equal to 3, we can do this:
+
+-- ghci> getAny $ F.foldMap (\x -> Any $ x == 3) testTree
+-- True
+
+-- Here, \x -> Any $ x == 3 is a function that takes a number and returns a monoid value:
+-- a Bool wrapped in Any.
+-- foldMap applies this function to every element in our tree and then reduces the resulting
+-- monoids into a single monoid with mappend.
+-- Suppose we do this:
+
+-- ghci> getAny $ F.foldMap (\x -> Any $ x > 15) testTree
+-- False
+
+-- All of the nodes in our tree will hold the value Any False after having the function in the lambda applied to them.
+-- But to end up True, mappend for Any must have at least one True value as a parameter.
+-- That’s why the final result is False, which makes sense because no value in our tree is greater than 15.
+
+
+-- We can also easily turn our tree into a list by doing a foldMap with the \x -> [x] function.
+-- By first projecting that function onto our tree, each element becomes a singleton list.
+-- The mappend action that takes place between all those singleton lists results in a single list
+-- that holds all of the elements that are in our tree:
+
+-- ghci> F.foldMap (\x -> [x]) testTree
+-- [1,3,6,5,8,9,10]
